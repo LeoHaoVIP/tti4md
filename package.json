@@ -1,0 +1,15 @@
+{
+  "name": "text-to-image-for-md",
+  "version": "1.0.0",
+  "description": "A text-to-image tool for markdown",
+  "main": "app.js",
+  "scripts": {
+    "serve": "node app.js"
+  },
+  "author": "Wenhao Zhao",
+  "license": "ISC",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.12",
+    "express": "^4.18.2"
+  }
+}
