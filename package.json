@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
     "serve": "node app.js"
+    "build": "node app.js"
   },
   "author": "Wenhao Zhao",
   "license": "ISC",
