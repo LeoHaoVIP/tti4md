@@ -4,7 +4,7 @@
   "description": "A text-to-image tool for markdown",
   "main": "app.js",
   "scripts": {
-    "serve": "node app.js"
+    "serve": "node app.js",
     "build": "node app.js"
   },
   "author": "Wenhao Zhao",
