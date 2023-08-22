@@ -74,3 +74,4 @@ fabric.properties
 /text-to-image-for-md.iml
 /.idea/
 /node_modules/
+.vercel
