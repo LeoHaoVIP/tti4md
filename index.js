@@ -4,6 +4,7 @@ const express = require('express')
 const https = require("https")
 const http = require("http")
 const app = express()
+let browser = null
 /**
  * URL encode is needed.
  * Online tools: https://www.urlencoder.net/
@@ -16,33 +17,55 @@ app.get('/api', async (request, respond) => {
     const end = params.end
     const color = params.color ? params.color : 'brightgreen'
     try {
-        //参数校验
+        //params check
         if (!url) {
-            throw new Error('no url found')
+            throw new Error('no url found');
         }
         if (!selector) {
-            throw new Error('no selector found')
+            throw new Error('no selector found');
         }
         let imgShieldUrl = 'https://img.shields.io/badge/undefined-' + color;
-        const browser = await puppeteer.launch({
-            args: chromium.args,
-            executablePath:
-                process.env.CHROME_EXECUTABLE_PATH || (await chromium.executablePath),
-            headless: true,
-            ignoreDefaultArgs: ["--disable-extensions"],
-            ignoreHTTPSErrors: true,
-        })
-        const page = await browser.newPage();
+        const openBrowser = async () => {
+            if (!browser) {
+                browser = await puppeteer.launch({
+                    args: chromium.args,
+                    executablePath:
+                        process.env.CHROME_EXECUTABLE_PATH || (await chromium.executablePath),
+                    headless: true,
+                    ignoreDefaultArgs: ["--disable-extensions"],
+                    ignoreHTTPSErrors: true,
+                });
+                browser.on('disconnected', () => {
+                    console.log('browser disconnected');
+                    browser = null;
+                })
+            }
+            return browser;
+        };
+        const page = await openBrowser.newPage();
+        //set request interception
+        await page.setRequestInterception(true);
+        page.on("request", (req) => {
+            if (
+                req.resourceType() === "stylesheet" ||
+                req.resourceType() === "font" ||
+                req.resourceType() === "image"
+            ) {
+                req.abort();
+            } else {
+                req.continue();
+            }
+        });
         await page.goto(url);
-        //等待 selector
+        //wait for element
         await page.waitForSelector(selector);
-        //解析 selector
+        //get element
         let element = await page.$eval(selector, el => el.innerHTML);
         let message;
         if (element) {
             message = end ? element.substring(start, end) : element.substring(start)
         }
-        //处理特殊字符
+        //handle invalid character
         if (message.indexOf('/') >= 0 || message.indexOf('-') >= 0) {
             throw new Error('invalid character found');
         }
@@ -70,7 +93,7 @@ function download(url, callback) {
     const req = httpServer.get(url, (res) => {
         const chunks = []
         let size = 0
-        res.on('data', function (chunk) {  //数据传输
+        res.on('data', function (chunk) {
             try {
                 chunks.push(chunk)
                 size += chunk.length
@@ -79,7 +102,7 @@ function download(url, callback) {
                 console.log(e.message)
             }
         })
-        res.on('end', function () {  //数据传输完成
+        res.on('end', function () {
             try {
                 const data = Buffer.concat(chunks, size);
                 callback(data)
