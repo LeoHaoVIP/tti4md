@@ -1,13 +1,9 @@
-const puppeteer = require('puppeteer');
+const puppeteer = require('puppeteer-core')
+const chromium = require("@sparticuz/chromium")
 const express = require('express')
 const https = require("https")
 const http = require("http")
 const app = express()
-//中间件配置
-//适应Post请求
-app.use(express.json())
-//适应get请求
-app.use(express.urlencoded({extended: false}))
 /**
  * URL encode is needed.
  * Online tools: https://www.urlencoder.net/
@@ -28,13 +24,14 @@ app.get('/api', async (request, respond) => {
             throw new Error('no selector found')
         }
         let imgShieldUrl = 'https://img.shields.io/badge/undefined-' + color;
-        let browser = await puppeteer.launch({
+        const browser = await puppeteer.launch({
+            args: chromium.args,
+            executablePath:
+                process.env.CHROME_EXECUTABLE_PATH || (await chromium.executablePath),
             headless: true,
+            ignoreDefaultArgs: ["--disable-extensions"],
             ignoreHTTPSErrors: true,
-            args: [
-                `--no-sandbox`,
-            ]
-        });
+        })
         const page = await browser.newPage();
         await page.goto(url);
         //等待 selector
