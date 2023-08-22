@@ -25,24 +25,22 @@ app.get('/api', async (request, respond) => {
             throw new Error('no selector found');
         }
         let imgShieldUrl = 'https://img.shields.io/badge/undefined-' + color;
-        const openBrowser = async () => {
-            if (!browser) {
-                browser = await puppeteer.launch({
-                    args: chromium.args,
-                    executablePath:
-                        process.env.CHROME_EXECUTABLE_PATH || (await chromium.executablePath),
-                    headless: true,
-                    ignoreDefaultArgs: ["--disable-extensions"],
-                    ignoreHTTPSErrors: true,
-                });
-                browser.on('disconnected', () => {
-                    console.log('browser disconnected');
-                    browser = null;
-                })
-            }
-            return browser;
-        };
-        const page = await openBrowser.newPage();
+        //reuse browser connection
+        if (!browser) {
+            browser = await puppeteer.launch({
+                args: chromium.args,
+                executablePath:
+                    process.env.CHROME_EXECUTABLE_PATH || (await chromium.executablePath),
+                headless: true,
+                ignoreDefaultArgs: ["--disable-extensions"],
+                ignoreHTTPSErrors: true,
+            });
+            browser.on('disconnected', () => {
+                console.log('browser disconnected');
+                browser = null;
+            })
+        }
+        const page = await browser.newPage();
         //set request interception
         await page.setRequestInterception(true);
         page.on("request", (req) => {
