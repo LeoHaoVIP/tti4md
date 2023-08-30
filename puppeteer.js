@@ -9,17 +9,7 @@ let browser = process.env.IS_REMOTE_FUCNTION ?
         headless: true,
         ignoreDefaultArgs: ["--disable-extensions"],
         ignoreHTTPSErrors: true,
-        args: [
-            `--no-sandbox`,
-            '--disable-gpu',
-            '--disable-dev-shm-usage',
-            '--disable-setuid-sandbox',
-            '--no-first-run',
-            '--no-sandbox',
-            '--no-zygote',
-            '--single-process',
-            '--blink-settings=imagesEnabled=false'
-        ]
+        args: chromium.args
     }) :
     puppeteer.launch({
         headless: true,
