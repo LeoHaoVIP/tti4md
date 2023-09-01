@@ -1,5 +1,6 @@
 # 容器构建命令示例
-# docker run -d --name meeting-frontend -p 4000:80 -e BACKEND_IP="www.leohao.cn" -e BACKEND_PORT="5000" -e COTURN_IP="120.26.96.136" -e COTURN_PORT="3478" -e COTURN_USERNAME="kurento" -e COTURN_PASSWORD="kurento" meeting-frontend:latest
+# docker build -t tti4md:latest ./
+# docker run -d --name tti4md -p 4000:3000 tti4md:latest
 FROM node:16.18.0-slim
 MAINTAINER	WenhaoZhao<zhaowenhao2867@outlook.com>
 
