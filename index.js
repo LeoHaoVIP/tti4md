@@ -1,10 +1,12 @@
-const express = require('express')
-const https = require("https")
-const http = require("http")
+const express = require('express');
+const https = require("https");
+const http = require("http");
 const puppeteerCore = require("puppeteer-core");
 const chromium = require("@sparticuz/chromium");
 const puppeteer = require("puppeteer");
-const app = express()
+const app = express();
+const port = 3000;
+const useRemoteFunction = process.env.IS_REMOTE_FUCNTION;
 /**
  * URL encode is needed.
  * Online tools: https://www.urlencoder.net/
@@ -26,7 +28,7 @@ app.get('/api', async (request, respond) => {
         }
         let imgShieldUrl = 'https://img.shields.io/badge/undefined-' + color;
         //根据环境创建 Browser 对象
-        let browser = process.env.IS_REMOTE_FUCNTION ?
+        let browser = useRemoteFunction ?
             await puppeteerCore.launch({
                 executablePath: await chromium.executablePath,
                 headless: true,
@@ -122,7 +124,12 @@ function download(url, callback) {
     })
 }
 
-// app.listen(port, () => {
-//     console.log(`app listening on port ${port}`)
-// })
+/**
+ * vercel 等平台会自动创建监听端口
+ */
+if (!useRemoteFunction) {
+    app.listen(port, () => {
+        console.log(`app listening on port ${port}`)
+    })
+}
 module.exports = app;
