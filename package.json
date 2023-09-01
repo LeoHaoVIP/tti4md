@@ -5,6 +5,9 @@
   "main": "index.js",
   "author": "Wenhao Zhao",
   "license": "ISC",
+  "scripts": {
+    "serve": "node index.js"
+  },
   "dependencies": {
     "@sparticuz/chromium": "^92.0.0",
     "@vercel/node": "^3.0.0",
