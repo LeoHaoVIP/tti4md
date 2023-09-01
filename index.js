@@ -1,8 +1,10 @@
 const express = require('express')
 const https = require("https")
 const http = require("http")
+const puppeteerCore = require("puppeteer-core");
+const chromium = require("@sparticuz/chromium");
+const puppeteer = require("puppeteer");
 const app = express()
-const browser = require('./puppeteer').browser
 /**
  * URL encode is needed.
  * Online tools: https://www.urlencoder.net/
@@ -23,7 +25,32 @@ app.get('/api', async (request, respond) => {
             throw new Error('no selector found');
         }
         let imgShieldUrl = 'https://img.shields.io/badge/undefined-' + color;
-        const page = await (await browser).newPage();
+        //根据环境创建 Browser 对象
+        let browser = process.env.IS_REMOTE_FUCNTION ?
+            await puppeteerCore.launch({
+                executablePath: await chromium.executablePath,
+                headless: true,
+                ignoreDefaultArgs: ["--disable-extensions"],
+                ignoreHTTPSErrors: true,
+                args: chromium.args
+            }) :
+            await puppeteer.launch({
+                headless: true,
+                ignoreDefaultArgs: ["--disable-extensions"],
+                ignoreHTTPSErrors: true,
+                args: [
+                    `--no-sandbox`,
+                    '--disable-gpu',
+                    '--disable-dev-shm-usage',
+                    '--disable-setuid-sandbox',
+                    '--no-first-run',
+                    '--no-sandbox',
+                    '--no-zygote',
+                    '--single-process',
+                    '--blink-settings=imagesEnabled=false'
+                ]
+            });
+        const page = await browser.newPage();
         //set request interception
         await page.setRequestInterception(true);
         page.on("request", (req) => {
