@@ -27,7 +27,7 @@ app.get('/api', async (request, respond) => {
         let imgShieldUrl = 'https://img.shields.io/badge/undefined-' + color;
         //创建 Browser 对象
         browser = await puppeteer.launch({
-            headless: false,
+            headless: true,
             ignoreDefaultArgs: ["--disable-extensions"],
             ignoreHTTPSErrors: true,
             args: [
