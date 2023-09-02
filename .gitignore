@@ -75,3 +75,4 @@ fabric.properties
 /.idea/
 /node_modules/
 .vercel
+!/package-lock.json

@@ -18,6 +18,7 @@ app.get('/api', async (request, respond) => {
     const start = params.start ? params.start : 0
     const end = params.end
     const color = params.color ? params.color : 'brightgreen'
+    let browser = null;
     try {
         //params check
         if (!url) {
@@ -28,7 +29,7 @@ app.get('/api', async (request, respond) => {
         }
         let imgShieldUrl = 'https://img.shields.io/badge/undefined-' + color;
         //根据环境创建 Browser 对象
-        let browser = useRemoteFunction ?
+        browser = useRemoteFunction ?
             await puppeteerCore.launch({
                 executablePath: await chromium.executablePath,
                 headless: true,
@@ -37,7 +38,7 @@ app.get('/api', async (request, respond) => {
                 args: chromium.args
             }) :
             await puppeteer.launch({
-                headless: true,
+                headless: false,
                 ignoreDefaultArgs: ["--disable-extensions"],
                 ignoreHTTPSErrors: true,
                 args: [
@@ -55,6 +56,23 @@ app.get('/api', async (request, respond) => {
         const page = await browser.newPage();
         //set request interception
         await page.setRequestInterception(true);
+        //通过 page.evaluate 在浏览器里执行删除无用的 iframe 代码
+        await page.evaluate(async () => {
+            let iframes = document.getElementsByTagName('iframe');
+            for (let i = 3; i < iframes.length - 1; i++) {
+                let iframe = iframes[i];
+                if (iframe.name.includes("frameBody")) {
+                    iframe.src = 'about:blank';
+                    try {
+                        iframe.contentWindow.document.write('');
+                        iframe.contentWindow.document.clear();
+                    } catch (e) {
+                    }
+                    //把iframe从页面移除
+                    iframe.parentNode.removeChild(iframe);
+                }
+            }
+        })
         page.on("request", (req) => {
             if (['image', 'stylesheet', 'font'].includes(req.resourceType())) {
                 req.abort();
@@ -86,6 +104,10 @@ app.get('/api', async (request, respond) => {
         respond.send({
             msg: e.message
         })
+    } finally {
+        if (browser != null) {
+            browser.close();
+        }
     }
 })
 
