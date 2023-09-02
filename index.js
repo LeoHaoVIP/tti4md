@@ -1,12 +1,9 @@
 const express = require('express');
 const https = require("https");
 const http = require("http");
-const puppeteerCore = require("puppeteer-core");
-const chromium = require("@sparticuz/chromium");
 const puppeteer = require("puppeteer");
 const app = express();
 const port = 3000;
-const useRemoteFunction = process.env.IS_REMOTE_FUCNTION;
 /**
  * URL encode is needed.
  * Online tools: https://www.urlencoder.net/
@@ -28,31 +25,23 @@ app.get('/api', async (request, respond) => {
             throw new Error('no selector found');
         }
         let imgShieldUrl = 'https://img.shields.io/badge/undefined-' + color;
-        //根据环境创建 Browser 对象
-        browser = useRemoteFunction ?
-            await puppeteerCore.launch({
-                executablePath: await chromium.executablePath,
-                headless: true,
-                ignoreDefaultArgs: ["--disable-extensions"],
-                ignoreHTTPSErrors: true,
-                args: chromium.args
-            }) :
-            await puppeteer.launch({
-                headless: false,
-                ignoreDefaultArgs: ["--disable-extensions"],
-                ignoreHTTPSErrors: true,
-                args: [
-                    `--no-sandbox`,
-                    '--disable-gpu',
-                    '--disable-dev-shm-usage',
-                    '--disable-setuid-sandbox',
-                    '--no-first-run',
-                    '--no-sandbox',
-                    '--no-zygote',
-                    '--single-process',
-                    '--blink-settings=imagesEnabled=false'
-                ]
-            });
+        //创建 Browser 对象
+        browser = await puppeteer.launch({
+            headless: false,
+            ignoreDefaultArgs: ["--disable-extensions"],
+            ignoreHTTPSErrors: true,
+            args: [
+                `--no-sandbox`,
+                '--disable-gpu',
+                '--disable-dev-shm-usage',
+                '--disable-setuid-sandbox',
+                '--no-first-run',
+                '--no-sandbox',
+                '--no-zygote',
+                '--single-process',
+                '--blink-settings=imagesEnabled=false'
+            ]
+        });
         const page = await browser.newPage();
         //set request interception
         await page.setRequestInterception(true);
@@ -146,12 +135,7 @@ function download(url, callback) {
     })
 }
 
-/**
- * vercel 等平台会自动创建监听端口
- */
-if (!useRemoteFunction) {
-    app.listen(port, () => {
-        console.log(`app listening on port ${port}`)
-    })
-}
+app.listen(port, () => {
+    console.log(`app listening on port ${port}`)
+})
 module.exports = app;
