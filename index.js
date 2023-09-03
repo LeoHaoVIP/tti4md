@@ -1,21 +1,22 @@
 const express = require('express');
-const https = require("https");
-const http = require("http");
-const puppeteer = require("puppeteer");
+const puppeteer = require('puppeteer');
 const app = express();
 const port = 3000;
+const SUCCESS_COLOR = 'brightgreen'
+const ERROR_COLOR = 'red'
 /**
  * URL encode is needed.
  * Online tools: https://www.urlencoder.net/
  */
+let browser = null;
+let imgShieldUrl;
 app.get('/api', async (request, respond) => {
     const params = request.query
     const url = params.url
     const selector = params.selector
     const start = params.start ? params.start : 0
     const end = params.end
-    const color = params.color ? params.color : 'brightgreen'
-    let browser = null;
+    const color = params.color ? params.color : SUCCESS_COLOR
     try {
         //params check
         if (!url) {
@@ -24,11 +25,10 @@ app.get('/api', async (request, respond) => {
         if (!selector) {
             throw new Error('no selector found');
         }
-        let imgShieldUrl = 'https://img.shields.io/badge/undefined-' + color;
-        //创建 Browser 对象
+        //create Browser
         browser = await puppeteer.launch({
             headless: true,
-            ignoreDefaultArgs: ["--disable-extensions"],
+            ignoreDefaultArgs: ['--disable-extensions'],
             ignoreHTTPSErrors: true,
             args: [
                 `--no-sandbox`,
@@ -45,24 +45,23 @@ app.get('/api', async (request, respond) => {
         const page = await browser.newPage();
         //set request interception
         await page.setRequestInterception(true);
-        //通过 page.evaluate 在浏览器里执行删除无用的 iframe 代码
+        //remove iframe
         await page.evaluate(async () => {
             let iframes = document.getElementsByTagName('iframe');
             for (let i = 3; i < iframes.length - 1; i++) {
                 let iframe = iframes[i];
-                if (iframe.name.includes("frameBody")) {
+                if (iframe.name.includes('frameBody')) {
                     iframe.src = 'about:blank';
                     try {
                         iframe.contentWindow.document.write('');
                         iframe.contentWindow.document.clear();
                     } catch (e) {
                     }
-                    //把iframe从页面移除
                     iframe.parentNode.removeChild(iframe);
                 }
             }
         })
-        page.on("request", (req) => {
+        page.on('request', (req) => {
             if (['image', 'stylesheet', 'font'].includes(req.resourceType())) {
                 req.abort();
             } else {
@@ -83,57 +82,17 @@ app.get('/api', async (request, respond) => {
             throw new Error('invalid character found');
         }
         imgShieldUrl = 'https://img.shields.io/badge/' + message + '-' + color;
-        download(imgShieldUrl, (data) => {
-            respond.set('Content-Type', 'image/svg+xml;charset=utf-8')
-            respond.send(data);
-        })
+        respond.redirect(imgShieldUrl);
     } catch (e) {
         console.log(e)
-        respond.set('Content-Type', 'application/json')
-        respond.send({
-            msg: e.message
-        })
+        imgShieldUrl = 'https://img.shields.io/badge/' + e.message + '-' + ERROR_COLOR;
+        respond.redirect(imgShieldUrl);
     } finally {
         if (browser != null) {
             browser.close();
         }
     }
 })
-
-/**
- * Download online file
- * @param url
- * @param callback
- */
-function download(url, callback) {
-    const httpServer = url.startsWith('https') ? https : http
-    const req = httpServer.get(url, (res) => {
-        const chunks = []
-        let size = 0
-        res.on('data', function (chunk) {
-            try {
-                chunks.push(chunk)
-                size += chunk.length
-            } catch (e) {
-                callback()
-                console.log(e.message)
-            }
-        })
-        res.on('end', function () {
-            try {
-                const data = Buffer.concat(chunks, size);
-                callback(data)
-            } catch (e) {
-                callback()
-                console.log(e.message)
-            }
-        })
-    })
-    req.on('error', (e) => {
-        callback()
-        console.log(e.message)
-    })
-}
 
 app.listen(port, () => {
     console.log(`app listening on port ${port}`)
