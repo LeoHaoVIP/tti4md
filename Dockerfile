@@ -5,6 +5,7 @@ FROM node:alpine
 MAINTAINER	WenhaoZhao<zhaowenhao2867@outlook.com>
 
 #安装依赖
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories
 RUN apk add --no-cache chromium nss freetype harfbuzz ca-certificates ttf-freefont nodejs curl
 
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
