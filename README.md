@@ -62,11 +62,13 @@ npm run serve
 
 > 说明：selector 字段需要经过 URL Encode 处理，在线转码工具：https://www.urlencoder.io/
 
+接口路径：`/api`
+
 | 参数名   | 参数含义             | 数据类型 | 是否可选                         | 备注                                                         |
 | -------- | -------------------- | -------- | -------------------------------- | ------------------------------------------------------------ |
 | url      | 待解析的网页地址     | String   | required                         | both `http` and `https ` are supported                       |
 | label    | 结果标签             | String   | optional \|default: null         | 无 label 的消息样式：![](https://img.shields.io/badge/message-brightgreen)<br />有 label 的消息样式：![](https://img.shields.io/badge/label-message-brightgreen) |
-| selector | 元素选择器           | String   | required                         | **URL-Encode is required.** <br /><img src="C:\Users\LeoHao\AppData\Roaming\Typora\typora-user-images\image-20230904113238823.png" alt="image-20230904113238823" style="zoom: 10%;" /> |
+| selector | 元素选择器           | String   | required                         | **URL-Encode is required.** <br /><img src="https://storage.leohao.cn/img/2023/09/04/64f54fe769619.png" alt="selector 获取方式" style="zoom: 10%;" /> |
 | start    | 目标文本截取初始位置 | String   | optional \| default: 0           | start from 0                                                 |
 | end      | 目标文本截取结束位置 | String   | optional \| default: null        | start from 0                                                 |
 | color    | 消息文本颜色         | String   | optional \| default: brightgreen | Hex, rgb, rgba, hsl, hsla and css named colors are all supported |
@@ -76,5 +78,5 @@ npm run serve
 
 | 名称                | URL                                          | selector                                                     | 效果                                                         |
 | ------------------- | -------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| Bilibili 视频点赞量 | https://www.bilibili.com/video/BV1424y1m7nN/ | %23arc_toolbar_report%20%3E%20div.video-toolbar-left%20%3E%20div%3Anth-child%281%29%20%3E%20div%20%3E%20span | ![](http://leohao.cn:4000/api?url=https://www.bilibili.com/video/BV1424y1m7nN&label=likes&selector=%23arc_toolbar_report%20%3E%20div.video-toolbar-left%20%3E%20div%3Anth-child%281%29%20%3E%20div%20%3E%20span) |
-| 百度搜索TOP热点     | https://www.baidu.com/                       | %23hotsearch-content-wrapper%20%3E%20li%3Anth-child%281%29%20%3E%20a%20%3E%20span.title-content-title | ![](http://leohao.cn:4000/api?url=https://www.baidu.com/&label=baiduHot&selector=%23hotsearch-content-wrapper%20%3E%20li%3Anth-child%281%29%20%3E%20a%20%3E%20span.title-content-title) |
+| Bilibili 视频点赞量 | https://www.bilibili.com/video/BV1424y1m7nN/ | %23arc_toolbar_report%20%3E%20div.video-toolbar-left%20%3E%20div%3Anth-child%281%29%20%3E%20div%20%3E%20span | ![](https://tti4md.leohao.cn/api?url=https://www.bilibili.com/video/BV1424y1m7nN&label=likes&selector=%23arc_toolbar_report%20%3E%20div.video-toolbar-left%20%3E%20div%3Anth-child%281%29%20%3E%20div%20%3E%20span) |
+| 百度搜索TOP热点     | https://www.baidu.com/                       | %23hotsearch-content-wrapper%20%3E%20li%3Anth-child%281%29%20%3E%20a%20%3E%20span.title-content-title | ![](https://tti4md.leohao.cn/api?url=https://www.baidu.com/&label=baiduHot&selector=%23hotsearch-content-wrapper%20%3E%20li%3Anth-child%281%29%20%3E%20a%20%3E%20span.title-content-title) |
