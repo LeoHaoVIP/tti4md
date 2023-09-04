@@ -31,6 +31,7 @@ app.get('/api', async (request, respond) => {
     const selector = params.selector
     const start = params.start ? params.start : 0
     const end = params.end
+    const label = params.label
     const color = params.color ? params.color : SUCCESS_COLOR
     const refresh = params.refresh ? params.refresh : FALSE_STRING
     const paramString = url + selector + start + end + color;
@@ -103,7 +104,7 @@ app.get('/api', async (request, respond) => {
         if (message.indexOf('/') >= 0 || message.indexOf('-') >= 0) {
             throw new Error('invalid character found');
         }
-        imgShieldUrl = 'https://img.shields.io/badge/' + message + '-' + color;
+        imgShieldUrl = 'https://img.shields.io/badge/' + (label ?  label+'-' : '') + message + '-' + color;
         //add to cache
         cache.set(paramHash, imgShieldUrl);
         respond.redirect(imgShieldUrl);
