@@ -36,6 +36,7 @@ app.get('/api', async (request, respond) => {
     const refresh = params.refresh ? params.refresh : FALSE_STRING
     const paramString = url + selector + start + end + color;
     try {
+        console.log('started')
         //params check
         if (!url) {
             throw new Error('no url found');
